@@ -1,0 +1,50 @@
+// Pseudokode start
+1. Lav en liste med alle noder og sæt deres afstand til uendelig
+2. Sæt afstanden for startnoden til 0
+
+3. Gem alle noder i en liste over ubehandlede noder (unvisited)
+
+4. Så længe der stadig er ubehandlede noder:
+   a. Find den node med den laveste afstand i listen
+   b. Gå gennem alle dens naboer
+      - Beregn ny afstand fra start til nabo gennem den aktuelle node
+      - Hvis den nye afstand er kortere end den nuværende:
+          - Opdater afstanden til naboen
+          - Husk at vi kom fra den aktuelle node (bruges til at finde ruten bagefter)
+   c. Fjern den aktuelle node fra de ubehandlede
+
+5. Når alle noder er behandlet, har vi den korteste afstand fra start til alle noder
+6. Backtrack baglæns fra slut til start ved hjælp af "forrige node" og lav ruten
+
+
+
+//Pseudokode forsat
+// 1. Initialiser
+for hver node i grafen:
+    afstand[node] = Infinity
+    forrige[node] = null
+
+afstand[startNode] = 0
+
+unvisited = liste med alle noder
+
+// 2. Selve løkken
+while unvisited ikke er tom:
+    currentNode = node med lavest afstand i unvisited
+
+    for hver nabo af currentNode:
+        nyAfstand = afstand[currentNode] + vægt mellem currentNode og nabo
+
+        hvis nyAfstand < afstand[nabo]:
+            afstand[nabo] = nyAfstand
+            forrige[nabo] = currentNode
+
+    fjern currentNode fra unvisited
+
+// 3. Backtracking
+rute = tom liste
+node = slutNode
+
+mens node ikke er null:
+    tilføj node til starten af rute
+    node = forrige[node]
