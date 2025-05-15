@@ -1,11 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dijkstra</title>
-</head>
-<body>
-    <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dijkstra visualisering</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Dijkstra's Algoritme</h1>
+
+    <div class="controls">
+      <div class="weights">
+        <label>A-B: <input type="number" id="weight-AB" value="2" /></label>
+        <label>A-C: <input type="number" id="weight-AC" value="1" /></label>
+        <label>B-C: <input type="number" id="weight-BC" value="1" /></label>
+        <label>B-D: <input type="number" id="weight-BD" value="6" /></label>
+        <label>B-E: <input type="number" id="weight-BE" value="4" /></label>
+        <label>C-E: <input type="number" id="weight-CE" value="4" /></label>
+        <label>D-E: <input type="number" id="weight-DE" value="5" /></label>
+        <label>D-F: <input type="number" id="weight-DF" value="3" /></label>
+        <label>E-F: <input type="number" id="weight-EF" value="5" /></label>
+      </div>
+      <button id="start-btn">Start</button>
+      <button id="next-btn">Videre</button>
+    </div>
+
+    <div class="graph-layout">
+      <svg id="graph" width="800" height="500">
+        <!-- Noder og edges vises her -->
+      </svg>
+
+      <table id="dijkstra-table">
+        <thead>
+          <tr>
+            <th>Node</th>
+            <th>Distance</th>
+            <th>Parent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows kommer her -->
+        </tbody>
+      </table>
+    </div>
+
+    <script src="script.js" type="module"></script>
+  </body>
 </html>

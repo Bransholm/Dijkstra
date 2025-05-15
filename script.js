@@ -1,3 +1,14 @@
+import {
+  drawGraph,
+  updateEdgeLabels,
+  updateTable,
+  highlightCurrent,
+  highlightNeighbor,
+  markVisited,
+  unhighlight,
+  highlightShortestPath,
+} from "./visual.js";
+
 // 1. Graph
 const graph = {
   A: { B: 2, C: 1 },
@@ -8,11 +19,21 @@ const graph = {
   F: {},
 };
 
-// 2. Dijkstra funktionen
-function dijkstra(graph, startNode) {
-  const distances = {};
-  const previous = {};
-  const unvisited = new Set();
+// 2. Variabler til flow
+let distances = {};
+let previous = {};
+let unvisited = new Set();
+let currentNode = null;
+let neighbors = {};
+let neighborKeys = [];
+let currentNeighborIndex = 0;
+let currentStep = "init";
+
+// 3. Initier Dijkstra
+function startDijkstra(startNode) {
+  distances = {};
+  previous = {};
+  unvisited = new Set();
 
   for (const node in graph) {
     distances[node] = Infinity;
@@ -21,10 +42,24 @@ function dijkstra(graph, startNode) {
   }
 
   distances[startNode] = 0;
+  drawGraph(graph);
+  updateEdgeLabels(graph);
+  updateTable(distances, previous);
 
-  while (unvisited.size > 0) {
-    let currentNode = null;
+  currentStep = "selectNode";
+  currentNeighborIndex = 0;
+}
+
+// 4. Step-funktion styret af if/else
+function nextStep() {
+  if (currentStep === "selectNode") {
+    if (unvisited.size === 0) {
+      currentStep = "done";
+      return;
+    }
+
     let lowestDistance = Infinity;
+    currentNode = null;
 
     for (const node of unvisited) {
       if (distances[node] < lowestDistance) {
@@ -34,49 +69,58 @@ function dijkstra(graph, startNode) {
     }
 
     if (currentNode === null) {
-      break;
+      currentStep = "done";
+      return;
     }
 
-    const neighbors = graph[currentNode];
-    for (const neighbor in neighbors) {
-      const distance = neighbors[neighbor];
-      const newDistance = distances[currentNode] + distance;
+    highlightCurrent(currentNode);
+    neighbors = graph[currentNode];
+    neighborKeys = Object.keys(neighbors);
+    currentNeighborIndex = 0;
+    currentStep = "neighbor-highlight";
+    return;
+  }
 
-      if (newDistance < distances[neighbor]) {
-        distances[neighbor] = newDistance;
-        previous[neighbor] = currentNode;
-      }
+  if (currentStep === "neighbor-highlight") {
+    if (currentNeighborIndex < neighborKeys.length) {
+      const neighbor = neighborKeys[currentNeighborIndex];
+      highlightNeighbor(neighbor);
+      currentStep = "neighbor-update";
+      return;
+    } else {
+      unvisited.delete(currentNode);
+      markVisited(currentNode);
+      unhighlight(currentNode);
+      currentStep = "selectNode";
+      return;
+    }
+  }
+
+  if (currentStep === "neighbor-update") {
+    const neighbor = neighborKeys[currentNeighborIndex];
+    const alt = distances[currentNode] + neighbors[neighbor];
+    if (alt < distances[neighbor]) {
+      distances[neighbor] = alt;
+      previous[neighbor] = currentNode;
     }
 
-    unvisited.delete(currentNode);
+    updateTable(distances, previous);
+    unhighlight(neighbor);
+    currentNeighborIndex++;
+    currentStep = "neighbor-highlight";
+    return;
   }
 
-  return { distances, previous };
-}
-
-// 3. Backtracking af korteste rute
-function getShortestPath(previous, endNode) {
-  const path = [];
-  let current = endNode;
-
-  while (current !== null) {
-    path.unshift(current);
-    current = previous[current];
+  if (currentStep === "done") {
+    highlightShortestPath(previous, "F");
   }
-
-  return path;
 }
 
-// 4. Kald af funktionerne for at starte algoritmen
-const { distances, previous } = dijkstra(graph, "A");
-const pathToF = getShortestPath(previous, "F");
+// 5. Knapper
+document.getElementById("start-btn").addEventListener("click", () => {
+  startDijkstra("A");
+});
 
-// Logs
-console.log("Afstande fra A:", distances);
-console.log("Previous nodes:", previous);
-console.log("Korteste vej til F:", pathToF);
-for (const node in distances) {
-  console.log(
-    `Node: ${node}, Distance: ${distances[node]}, Parent: ${previous[node]}`
-  );
-}
+document.getElementById("next-btn").addEventListener("click", () => {
+  nextStep();
+});
